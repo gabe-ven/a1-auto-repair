@@ -1,0 +1,35 @@
+'use client';
+import { useState } from 'react';
+import PromoBar from '@/components/PromoBar';
+import Navbar from '@/components/Navbar';
+import HeroSection from '@/components/HeroSection';
+import StatsSection from '@/components/StatsSection';
+import ServicesSection from '@/components/ServicesSection';
+import ReviewsSection from '@/components/ReviewsSection';
+import AboutSection from '@/components/AboutSection';
+import ContactSection from '@/components/ContactSection';
+import Footer from '@/components/Footer';
+import ServiceRequestWizard from '@/components/ServiceRequestWizard';
+import InfoBar from '@/components/InfoBar';
+import { useScrollReveal } from '@/lib/useScrollReveal';
+
+export default function Home() {
+  const [scheduleOpen, setScheduleOpen] = useState(false);
+  useScrollReveal();
+
+  return (
+    <>
+      <PromoBar />
+      <Navbar onSchedule={() => setScheduleOpen(true)} />
+      <HeroSection onSchedule={() => setScheduleOpen(true)} />
+      <InfoBar />
+      <StatsSection />
+      <ServicesSection />
+      <ReviewsSection />
+      <AboutSection />
+      <ContactSection />
+      <Footer />
+      <ServiceRequestWizard open={scheduleOpen} onClose={() => setScheduleOpen(false)} />
+    </>
+  );
+}
