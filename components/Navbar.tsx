@@ -26,7 +26,7 @@ const LINKS = [
   { id: 'contact', label: 'CONTACT' },
 ];
 
-export default function Navbar({ onSchedule }: { onSchedule: () => void }) {
+export default function Navbar({ onSchedule, onTrack }: { onSchedule: () => void; onTrack: () => void }) {
   const [openServices, setOpenServices] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('home');
@@ -74,7 +74,7 @@ export default function Navbar({ onSchedule }: { onSchedule: () => void }) {
           ))}
         </ul>
         <div className="nav-ctas" style={{ display: 'flex', gap: 10, flexShrink: 0 }}>
-          <a href="https://www.a1autoshop.net/Auto-Repair/Schedule-A-Repair" target="_blank" rel="noopener" style={{ ...btnOutlineDark, padding: '11px 18px', textDecoration: 'none', display: 'inline-flex', alignItems: 'center' }}>SCHEDULE ONLINE</a>
+          <button onClick={onTrack} style={{ ...btnOutlineDark, padding: '11px 18px', display: 'inline-flex', alignItems: 'center' }}>TRACK MY CAR</button>
           <button onClick={onSchedule} style={btnFilledRed}>REQUEST SERVICE</button>
         </div>
         <button className="nav-burger" onClick={() => setMobileOpen(!mobileOpen)} style={{ display: 'none', background: 'none', border: 'none', cursor: 'pointer', padding: 4, color: '#111111' }}>
@@ -86,7 +86,7 @@ export default function Navbar({ onSchedule }: { onSchedule: () => void }) {
           {LINKS.map(l => <a key={l.id} href={`#${l.id}`} onClick={e => { e.preventDefault(); scrollTo(l.id); }} style={{ display: 'block', padding: '14px 0', borderBottom: '1px solid #F0F0F0', fontFamily: "'Barlow Condensed',sans-serif", fontWeight: 600, fontSize: 18, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#111111', textDecoration: 'none' }}>{l.label}</a>)}
           <a href="tel:5306666000" style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 14, padding: '12px 14px', background: '#F5F5F5', borderRadius: 4, color: '#111111', textDecoration: 'none', fontFamily: "'Barlow Condensed',sans-serif", fontWeight: 600, fontSize: 17 }}><Phone size={16} style={{ color: '#CC2020' }} />(530) 666-6000</a>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 14 }}>
-            <a href="https://www.a1autoshop.net/Auto-Repair/Schedule-A-Repair" target="_blank" rel="noopener" style={{ ...btnOutlineDark, padding: '14px 18px', fontSize: 14, textDecoration: 'none', display: 'flex', justifyContent: 'center' }}>SCHEDULE ONLINE</a>
+            <button onClick={() => { setMobileOpen(false); onTrack(); }} style={{ ...btnOutlineDark, padding: '14px 18px', fontSize: 14, display: 'flex', justifyContent: 'center' }}>TRACK MY CAR</button>
             <button onClick={() => { setMobileOpen(false); onSchedule(); }} style={{ ...btnFilledRed, padding: '14px 18px', fontSize: 14 }}>REQUEST SERVICE</button>
           </div>
         </div>

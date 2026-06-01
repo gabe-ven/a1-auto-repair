@@ -36,12 +36,47 @@ export default function ServiceRequestWizard({ open, onClose }: { open: boolean;
   const [car, setCar] = useState({ year: '', make: '', model: '', plate: '' });
   const [files, setFiles] = useState<Array<{name:string;size:number}>>([]);
   const [contact, setContact] = useState({ name: '', phone: '', email: '', method: 'phone', notes: '', date: '', time: '' });
+  const [ticket, setTicket] = useState('');
+  const [submitLoading, setSubmitLoading] = useState(false);
+  const [submitError, setSubmitError] = useState('');
   const fileRef = useRef<HTMLInputElement>(null);
 
-  const reset = () => { setStep(1); setIssues([]); setCar({year:'',make:'',model:'',plate:''}); setFiles([]); setContact({name:'',phone:'',email:'',method:'phone',notes:'',date:'',time:''}); };
+  const reset = () => { setStep(1); setIssues([]); setCar({year:'',make:'',model:'',plate:''}); setFiles([]); setContact({name:'',phone:'',email:'',method:'phone',notes:'',date:'',time:''}); setTicket(''); setSubmitError(''); };
   const toggle = (id: string) => setIssues(c => c.includes(id) ? c.filter(x => x !== id) : [...c, id]);
 
-  const submit = () => { setStep(5); };
+  const submit = async () => {
+    setSubmitLoading(true);
+    setSubmitError('');
+    try {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_DASHBOARD_API_URL}/api/tickets`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            shop_id: process.env.NEXT_PUBLIC_SHOP_ID,
+            customer_name: contact.name,
+            customer_phone: contact.phone,
+            customer_email: contact.email,
+            license_plate: '',
+            car_make: car.make,
+            car_model: car.model,
+            car_year: car.year,
+            issues,
+            notes: contact.notes,
+          }),
+        }
+      );
+      if (!res.ok) throw new Error('API error');
+      const data = await res.json();
+      setTicket(data.ticket_number);
+      setStep(5);
+    } catch {
+      setSubmitError('Something went wrong, please try again.');
+    } finally {
+      setSubmitLoading(false);
+    }
+  };
 
   return (
     <ModalShell open={open} onClose={() => { reset(); onClose(); }} maxWidth={780}>
@@ -119,7 +154,10 @@ export default function ServiceRequestWizard({ open, onClose }: { open: boolean;
             <Field label="Anything else we should know?" full><textarea rows={3} placeholder="e.g. car makes a grinding noise on left turns…" value={contact.notes} onChange={e=>setContact({...contact,notes:e.target.value})} style={{ ...inputStyle,resize:'vertical',fontFamily:'Inter,sans-serif' }} /></Field>
           </div>
         </div>
-        <div style={modalFooterStyle}><span /><button onClick={submit} disabled={!contact.name||!contact.phone} style={{ ...btnFilledRed,padding:'12px 22px',fontSize:13,opacity:(!contact.name||!contact.phone)?0.45:1,cursor:(!contact.name||!contact.phone)?'not-allowed':'pointer' }}>Submit Request <Check size={14} style={{marginLeft:8,verticalAlign:'-2px'}} /></button></div>
+        {submitError && (
+          <div style={{ margin:'0 26px',padding:'10px 14px',background:'#FFF0F0',border:'1px solid #E05252',borderLeft:'4px solid #CC2020',borderRadius:4,fontFamily:"var(--font-inter),Inter,sans-serif",fontSize:13.5,color:'#B23A3A' }}>{submitError}</div>
+        )}
+        <div style={modalFooterStyle}><span /><button onClick={submit} disabled={!contact.name||!contact.phone||submitLoading} style={{ ...btnFilledRed,padding:'12px 22px',fontSize:13,opacity:(!contact.name||!contact.phone||submitLoading)?0.45:1,cursor:(!contact.name||!contact.phone||submitLoading)?'not-allowed':'pointer' }}>{submitLoading?'Submitting…':'Submit Request'}{!submitLoading&&<Check size={14} style={{marginLeft:8,verticalAlign:'-2px'}} />}</button></div>
       </>}
 
       {/* Step 5 — Confirmation */}
@@ -128,6 +166,9 @@ export default function ServiceRequestWizard({ open, onClose }: { open: boolean;
           <div style={{ width:92,height:92,borderRadius:'50%',background:'#CC2020',boxShadow:'0 0 0 10px rgba(204,32,32,0.16)',display:'inline-flex',alignItems:'center',justifyContent:'center',animation:'pop-check 480ms cubic-bezier(0.16,1,0.3,1) forwards' }}><Check size={50} style={{ color:'#FFFFFF',strokeWidth:3 }} /></div>
           <h3 style={{ fontFamily:"'Bebas Neue',sans-serif",fontSize:42,color:'#111111',margin:'24px 0 10px',lineHeight:1 }}>We've got your request!</h3>
           <p style={{ fontFamily:'Inter,sans-serif',fontSize:15,color:'#666666',maxWidth:460,margin:'0 auto',lineHeight:1.6 }}>Our team will reach out shortly to confirm your appointment. You can also schedule directly on our website.</p>
+          {ticket && (
+            <div style={{ display:'inline-block',marginTop:18,padding:'10px 18px',background:'#FEF2F2',border:'1px solid #CC2020',borderRadius:30,fontFamily:'ui-monospace,"SF Mono",Menlo,monospace',fontSize:14,fontWeight:700,color:'#CC2020',letterSpacing:'0.06em' }}>{ticket}</div>
+          )}
           <div style={{ display:'flex',justifyContent:'center',gap:12,flexWrap:'wrap',marginTop:28 }}>
             <a href="https://www.a1autoshop.net/Auto-Repair/Schedule-A-Repair" target="_blank" rel="noopener" style={{ ...btnFilledRed,padding:'12px 20px',fontSize:13,textDecoration:'none',display:'inline-flex',alignItems:'center',gap:8 }}>
               Schedule Online <ExternalLink size={13} />

@@ -10,17 +10,19 @@ import AboutSection from '@/components/AboutSection';
 import ContactSection from '@/components/ContactSection';
 import Footer from '@/components/Footer';
 import ServiceRequestWizard from '@/components/ServiceRequestWizard';
+import TrackMyCarModal from '@/components/TrackMyCarModal';
 import InfoBar from '@/components/InfoBar';
 import { useScrollReveal } from '@/lib/useScrollReveal';
 
 export default function Home() {
   const [scheduleOpen, setScheduleOpen] = useState(false);
+  const [trackOpen, setTrackOpen] = useState(false);
   useScrollReveal();
 
   return (
     <>
       <PromoBar />
-      <Navbar onSchedule={() => setScheduleOpen(true)} />
+      <Navbar onSchedule={() => setScheduleOpen(true)} onTrack={() => setTrackOpen(true)} />
       <HeroSection onSchedule={() => setScheduleOpen(true)} />
       <InfoBar />
       <StatsSection />
@@ -30,6 +32,7 @@ export default function Home() {
       <ContactSection />
       <Footer />
       <ServiceRequestWizard open={scheduleOpen} onClose={() => setScheduleOpen(false)} />
+      <TrackMyCarModal open={trackOpen} onClose={() => setTrackOpen(false)} />
     </>
   );
 }
